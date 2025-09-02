@@ -33,16 +33,27 @@ faq_keywords = {
     "hod mechanical": ["hod mechanical", "mechanical hod", "hod of mehanical", "mechanical department hod", "me hod", "mechanical engineering", "me", "mechanical engineering department"],
     "hod electronics": ["hod electronics", "electronics hod", "hod of electronics", "electronics department hod", "electronic hod", "electronics engineering", "electronic engineering", "head of electronics"]
 }
-
 bad_words = ["fuck", "shit", "bitch", "damn", "ass", "idiot", "love you"]
 
-def get_bot_reply(user_input):
-    clean_input = user_input.lower().translate(str.maketrans("", "", string.punctuation))
-    
-    # Check for offensive words (single or multiple words) using substring match
+def contains_bad_word(user_input):
+    # Normalize input
+    clean_input = user_input.lower()
+    clean_input = clean_input.translate(str.maketrans("", "", string.punctuation))
+    words = clean_input.split()
+
     for bad_word in bad_words:
-        if bad_word in clean_input:
-            return "⚠️ Please use polite language."
+        # if the bad word has spaces (like "love you"), check substring
+        if " " in bad_word:
+            if bad_word in clean_input:
+                return True
+        else:
+            if bad_word in words:
+                return True
+    return False
+
+def get_bot_reply(user_input):
+    if contains_bad_word(user_input):
+        return "⚠️ Please use polite language."
 
     # 1️⃣ Check keywords by simple substring match
     for answer_key, keywords in faq_keywords.items():
