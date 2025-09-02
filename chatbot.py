@@ -33,18 +33,24 @@ faq_keywords = {
     "hod electronics": ["hod electronics", "electronics hod", "hod of electronics", "electronics department hod", "electronic hod", "electronics engineering", "electronic engineering", "head of electronics"]
 }
 
-def get_bot_reply_fixed(user_input):
-    user_input = user_input.lower()
-    words = set(user_input.split())  # split input into words
+# === Offensive Words List ===
+bad_words = ["fuck", "shit", "bitch", "damn", "ass", "idiot", "love you"]
 
-    # 1️⃣ Check keywords by word overlap
+# === Bot Reply Function ===
+def get_bot_reply(user_input):
+    user_input = user_input.lower()
+
+    # 0️⃣ Filter offensive words first
+    if any(word in user_input for word in bad_words):
+        return "⚠️ Please use polite language."
+
+    # 1️⃣ Check keywords by simple substring match
     for answer_key, keywords in faq_keywords.items():
         for kw in keywords:
-            kw_words = set(kw.lower().split())
-            if kw_words <= words:  # all words in keyword are in user input
+            if kw in user_input:
                 return faq_answers[answer_key]
 
-    # 2️⃣ If no exact match, use fuzzy matching on keywords (optional)
+    # 2️⃣ Fuzzy matching as fallback
     all_keywords = []
     keyword_to_answer = {}
     for ans_key, keywords in faq_keywords.items():
@@ -52,7 +58,7 @@ def get_bot_reply_fixed(user_input):
             all_keywords.append(k)
             keyword_to_answer[k] = ans_key
 
-    best_match = difflib.get_close_matches(user_input, all_keywords, n=1, cutoff=0.4)
+    best_match = difflib.get_close_matches(user_input, all_keywords, n=1, cutoff=0.6)  # stricter cutoff
     if best_match:
         matched_keyword = best_match[0]
         answer_key = keyword_to_answer[matched_keyword]
