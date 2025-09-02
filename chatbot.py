@@ -1,4 +1,5 @@
 import difflib
+import string
 
 
 faq_answers = {
@@ -33,24 +34,32 @@ faq_keywords = {
     "hod electronics": ["hod electronics", "electronics hod", "hod of electronics", "electronics department hod", "electronic hod", "electronics engineering", "electronic engineering", "head of electronics"]
 }
 
-# === Offensive Words List ===
 bad_words = ["fuck", "shit", "bitch", "damn", "ass", "idiot", "love you"]
 
-# === Bot Reply Function ===
 def get_bot_reply(user_input):
-    user_input = user_input.lower()
 
-    # 0️⃣ Filter offensive words first
-    if any(word in user_input for word in bad_words):
-        return "⚠️ Please use polite language."
+    user_input = user_input.lower()
+    # Remove punctuation
+    clean_input = user_input.translate(str.maketrans("", "", string.punctuation))
+    words = clean_input.split()
+
+    # 0️⃣ Check for offensive words
+    for bad_word in bad_words:
+        # if bad_word is multiple words, check substring
+        if " " in bad_word:
+            if bad_word in clean_input:
+                return "⚠️ Please use polite language."
+        else:
+            if bad_word in words:
+                return "⚠️ Please use polite language."
 
     # 1️⃣ Check keywords by simple substring match
     for answer_key, keywords in faq_keywords.items():
         for kw in keywords:
-            if kw in user_input:
+            if kw in clean_input:
                 return faq_answers[answer_key]
 
-    # 2️⃣ Fuzzy matching as fallback
+    # 2️⃣ Fuzzy matching fallback
     all_keywords = []
     keyword_to_answer = {}
     for ans_key, keywords in faq_keywords.items():
@@ -58,7 +67,7 @@ def get_bot_reply(user_input):
             all_keywords.append(k)
             keyword_to_answer[k] = ans_key
 
-    best_match = difflib.get_close_matches(user_input, all_keywords, n=1, cutoff=0.6)  # stricter cutoff
+    best_match = difflib.get_close_matches(clean_input, all_keywords, n=1, cutoff=0.6)
     if best_match:
         matched_keyword = best_match[0]
         answer_key = keyword_to_answer[matched_keyword]
