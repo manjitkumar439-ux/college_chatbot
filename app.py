@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-from chatbot import get_bot_reply_fixed as get_bot_reply
+from chatbot import get_bot_reply
 import os
 
 # Explicitly tell Flask where the templates folder is
