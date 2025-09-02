@@ -108,7 +108,6 @@
       background: #005f66;
     }
 
-    /* Typing animation */
     .typing {
       display: inline-block;
       width: 8px;
@@ -119,13 +118,8 @@
       animation: blink 1.4s infinite both;
     }
 
-    .typing:nth-child(2) {
-      animation-delay: 0.2s;
-    }
-
-    .typing:nth-child(3) {
-      animation-delay: 0.4s;
-    }
+    .typing:nth-child(2) { animation-delay: 0.2s; }
+    .typing:nth-child(3) { animation-delay: 0.4s; }
 
     @keyframes blink {
       0%, 80%, 100% { opacity: 0; }
@@ -150,11 +144,8 @@
   </div>
 
   <script>
-    const MODE = "local"; // change to "cloudflare" when using tunnel
-
-    const API_URL = MODE === "local"
-      ? "http://127.0.0.1:5000/get"
-      : "https://your-cloudflare-link.trycloudflare.com/get"; 
+    // Use your deployed Render URL here
+    const API_URL = "https://college-chatbot-4.onrender.com/get";
 
     const chatBox = document.getElementById("chat-box");
 
@@ -203,7 +194,7 @@
       fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userText, msg: userText })
+        body: JSON.stringify({ message: userText })
       })
       .then(res => res.json())
       .then(data => {
@@ -226,4 +217,3 @@
   </script>
 </body>
 </html>
-
