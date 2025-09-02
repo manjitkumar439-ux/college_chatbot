@@ -37,21 +37,12 @@ faq_keywords = {
 bad_words = ["fuck", "shit", "bitch", "damn", "ass", "idiot", "love you"]
 
 def get_bot_reply(user_input):
-
-    user_input = user_input.lower()
-    # Remove punctuation
-    clean_input = user_input.translate(str.maketrans("", "", string.punctuation))
-    words = clean_input.split()
-
-    # 0️⃣ Check for offensive words
+    clean_input = user_input.lower().translate(str.maketrans("", "", string.punctuation))
+    
+    # Check for offensive words (single or multiple words) using substring match
     for bad_word in bad_words:
-        # if bad_word is multiple words, check substring
-        if " " in bad_word:
-            if bad_word in clean_input:
-                return "⚠️ Please use polite language."
-        else:
-            if bad_word in words:
-                return "⚠️ Please use polite language."
+        if bad_word in clean_input:
+            return "⚠️ Please use polite language."
 
     # 1️⃣ Check keywords by simple substring match
     for answer_key, keywords in faq_keywords.items():
