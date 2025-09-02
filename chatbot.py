@@ -52,10 +52,19 @@ def contains_bad_word(user_input):
     return False
 
 def get_bot_reply(user_input):
-    if contains_bad_word(user_input):
-        return "⚠️ Please use polite language."
+    # Normalize input
+    clean_input = user_input.lower().translate(str.maketrans("", "", string.punctuation))
 
-    # 1️⃣ Check keywords by simple substring match
+    # 0️⃣ Check for bad words
+    for bad_word in bad_words:
+        if " " in bad_word:  # multi-word
+            if bad_word in clean_input:
+                return "⚠️ Please use polite language."
+        else:
+            if bad_word in clean_input.split():
+                return "⚠️ Please use polite language."
+
+    # 1️⃣ Check keywords by substring match
     for answer_key, keywords in faq_keywords.items():
         for kw in keywords:
             if kw in clean_input:
