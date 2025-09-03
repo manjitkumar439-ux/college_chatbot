@@ -144,12 +144,9 @@
   <script>
     const chatBox = document.getElementById("chat-box");
 
-    // Hardcode for local testing; comment out for Render deployment
-    const API_URL = "http://localhost:5000/get";
-    // For Render, uncomment this and update with your Render backend URL
-    // const API_URL = (window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost")
-    //   ? "http://localhost:5000/get"
-    //   : "https://chatbot-000.onrender.com/get";
+    const API_URL = (window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost")
+  ? "http://localhost:5000/get"
+  : "https://chatbot000439.onrender.com/get";
 
     function appendMessage(text, type) {
       console.log(`Appending message: ${text} (${type})`);
