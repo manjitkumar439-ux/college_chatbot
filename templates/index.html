@@ -117,7 +117,6 @@
       border-radius: 50%;
       animation: blink 1.4s infinite both;
     }
-
     .typing:nth-child(2) { animation-delay: 0.2s; }
     .typing:nth-child(3) { animation-delay: 0.4s; }
 
@@ -137,82 +136,96 @@
     <div id="chat-box"></div>
 
     <div id="input-container">
-      <input id="userInput" type="text" placeholder="Type your message..."
-             onkeypress="if(event.key==='Enter') sendMessage()">
+      <input id="userInput" type="text" placeholder="Type your message..." onkeypress="if(event.key==='Enter') sendMessage()">
       <button onclick="sendMessage()">Send</button>
     </div>
   </div>
 
   <script>
-    // Use your deployed Render URL here
-    const API_URL = "https://https://chatbot-000.onrender.com//get";
-
     const chatBox = document.getElementById("chat-box");
 
+    // Hardcode for local testing; comment out for Render deployment
+    const API_URL = "http://localhost:5000/get";
+    // For Render, uncomment this and update with your Render backend URL
+    // const API_URL = (window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost")
+    //   ? "http://localhost:5000/get"
+    //   : "https://chatbot-000.onrender.com/get";
+
     function appendMessage(text, type) {
+      console.log(`Appending message: ${text} (${type})`);
       const msg = document.createElement("div");
       msg.className = "msg " + type;
       msg.textContent = text;
       chatBox.appendChild(msg);
       chatBox.scrollTop = chatBox.scrollHeight;
-      return msg;
     }
 
     function showTypingIndicator() {
+      console.log("Showing typing indicator");
       const typingMsg = document.createElement("div");
       typingMsg.className = "msg bot";
       typingMsg.id = "typing";
-      typingMsg.innerHTML = `
-        <span class="typing"></span>
-        <span class="typing"></span>
-        <span class="typing"></span>
-      `;
+      typingMsg.innerHTML = `<span class="typing"></span><span class="typing"></span><span class="typing"></span>`;
       chatBox.appendChild(typingMsg);
       chatBox.scrollTop = chatBox.scrollHeight;
     }
 
     function removeTypingIndicator() {
+      console.log("Removing typing indicator");
       const typingMsg = document.getElementById("typing");
       if (typingMsg) typingMsg.remove();
     }
 
     function showBotReply(text) {
+      console.log(`Showing bot reply: ${text}`);
       removeTypingIndicator();
       appendMessage(text, "bot");
     }
 
-    function sendMessage() {
-      let inputField = document.getElementById("userInput");
-      let userText = inputField.value.trim();
-      if (userText === "") return;
+    async function sendMessage() {
+      const inputField = document.getElementById("userInput");
+      const userText = inputField.value.trim();
+      if (!userText) return;
 
       appendMessage(userText, "user");
       inputField.value = "";
-
       showTypingIndicator();
+      console.log(`Sending POST to ${API_URL} with message: ${userText}`);
 
-      fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userText })
-      })
-      .then(res => res.json())
-      .then(data => {
-        setTimeout(() => {
-          showBotReply(data.reply || "⚠️ Bot didn’t reply.");
-        }, 1000 + Math.random() * 1000);
-      })
-      .catch(err => {
+      try {
+        // Ensure typing indicator shows for at least 1.5 seconds
+        const [response] = await Promise.all([
+          fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: userText })
+          }),
+          new Promise(resolve => setTimeout(resolve, 1500)) // Minimum 1.5s delay
+        ]);
+
+        console.log(`Fetch response status: ${response.status}`);
+        if (!response.ok) {
+          throw new Error(`Server responded with status ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("Server response data:", data);
+        // Simulate additional typing delay (0.5–1s)
+        await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 500));
+        showBotReply(data.reply || "⚠️ Bot didn’t reply.");
+      } catch (err) {
         console.error("Fetch error:", err);
-        setTimeout(() => showBotReply("⚠️ Unable to connect to server."), 1000);
-      });
+        // Ensure typing indicator shows for 1.5s before showing error
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        removeTypingIndicator();
+        appendMessage(`⚠️ Failed to connect to server: ${err.message}. Please ensure the server is running at ${API_URL} and check browser DevTools for details.`, "bot");
+      }
     }
 
     window.onload = function() {
-      showTypingIndicator();
       setTimeout(() => {
-        showBotReply("👋 Welcome to Government Polytechnic Patna-07 Campus Chatbot! 🎓\nYou can ask me any information about college.");
-      }, 1200);
+        appendMessage("👋 Welcome to Government Polytechnic Patna-07 Campus Chatbot! 🎓 You can ask me any information about college.", "bot");
+      }, 500);
     };
   </script>
 </body>
