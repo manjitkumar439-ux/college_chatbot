@@ -156,7 +156,7 @@ if (window.location.hostname === "localhost" || window.location.hostname === "12
       console.log(`Appending message: ${text} (${type})`);
       const msg = document.createElement("div");
       msg.className = "msg " + type;
-      msg.textContent = text;
+      msg.innerHTML = text;
       chatBox.appendChild(msg);
       chatBox.scrollTop = chatBox.scrollHeight;
     }
