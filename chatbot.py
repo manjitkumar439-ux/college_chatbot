@@ -16,6 +16,11 @@ faq_answers = {
     "hod electrical": "The HOD of ELECTRICAL branch is Prof. Rabindra sir 👨‍🏫.",
     "hod mechanical": "The HOD of MECHANICAL branch is Prof. Nikhil patel 👨‍🏫.",
     "hod electronics":"The HOD of ELECTRONICS branch is Prof. Chandraprakash sir 👨‍🏫.",
+    "hod civil":"The HOD of CIVIL branch is Prof. Arbind sir 👨‍🏫.",
+    "hod textile":"The HOD of TEXTILE branch is Prof. s.n chaudhary 👨‍🏫.",
+    "hod printing":"The HOD of PRINTING branch is Prof. beer bahadur singh 👨‍🏫.",
+    "hod ceramics":"The HOD of CERAMICS branch is prof. Abhay kumar 👨‍🏫.",
+    "training and placement officers": "The TRAINING & PLACEMENT Officers are --> Brajendra kumar, Saurav suman and Ajay kumar 👨‍🏫."
 }
 
 faq_keywords = {
@@ -26,14 +31,21 @@ faq_keywords = {
     "library": ["library", "books", "reading room"],
     "principal": ["principal", "head of college", "college principal"],
     "sports": ["sports", "games", "playground", "athletics"],
-    "canteen": ["canteen", "food", "mess", "dining"],
+    "canteen": ["canteen", "food", "mess", "dining", "food in hostel"],
     "greeting": ["hello", "hi", "hii", "hey", "how are you"],
-    "hod cse": ["hod cse", "cse hod", "computer science hod", "head of cse", "cs hod", "computer science & engineering", "cse"],
-    "hod electrical": ["hod electrical", "electrical hod", "head of electrical", "electrical department hod", "ee hod", "electrical engineering", "ee"],
-    "hod mechanical": ["hod mechanical", "mechanical hod", "hod of mehanical", "mechanical department hod", "me hod", "mechanical engineering", "me", "mechanical engineering department"],
-    "hod electronics": ["hod electronics", "electronics hod", "hod of electronics", "electronics department hod", "electronic hod", "electronics engineering", "electronic engineering", "head of electronics"]
+    "hod cse": ["hod cse", "cse hod", "computer science hod", "head of cse", "cs hod", "computer science & engineering", "cse", "cse branch"],
+    "hod electrical": ["hod electrical", "electrical hod", "head of electrical", "electrical department hod", "ee hod", "electrical engineering", "electrical branch"],
+    "hod mechanical": ["hod mechanical", "mechanical hod", "hod of mehanical", "mechanical department hod", "me hod", "mechanical engineering", "mechanical engineering department", "mechanical branch"],
+    "hod electronics": ["hod electronics", "electronics hod", "hod of electronics", "electronics department hod", "electronic hod", "electronics engineering", "electronic engineering", "head of electronics", "electronics branch"],
+    "hod civil": ["hod civil", "civil hod", "hod of civil", "civil department hod", "civil enginnering hod", "civil engineering", "head of civil", "civil branch",],
+    "hod textile": ["hod textile", "textile hod", "hod of textile", "textile department hod", "textile engineering hod", "textile engineering", "head of textile", "textile branch",],
+    "hod printing": ["hod printing", "printing hod", "hod of printing", "printing department hod", "printing tecnology hod", "printing engineering", "head of printing", "printing branch", "printing tecnology"],
+    "hod ceramics": ["hod ceramics", "hod ceramic", "ceramic hod", "ceramics hod", "hod of ceramics", "ceramics department hod", "ceramics engineering hod", "ceramics engineering", "head of ceramics", "ceramics branch", "ceramic", "ceramics"],
+    "training and placement officers": ["tpo", "training and placement officer", "training & placement officers"],
+
+
 }
-bad_words = ["fuck", "shit", "bitch", "damn", "ass", "idiot", "love you"]
+bad_words = ["fuck", "shit", "bitch", "damn", "ass", "idiot", "love you",]
 
 def contains_bad_word(user_input):
     # Normalize input
