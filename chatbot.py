@@ -31,7 +31,7 @@ holidays = {
         "makar sankranti": "14 January 2025",
         "republic day": "26 January 2025"
     },
-     "february": {
+    "february": {
         "saraswati puja": "03 February 2025",
         "sant ravidas jayanti": "12 February 2025",
         "shab e barat": "14 February 2025",
@@ -109,24 +109,29 @@ bad_words = ["fuck", "shit", "bitch", "damn", "ass", "idiot", "love you"]
 
 # ---------------- Holiday handler ---------------- #
 def get_holiday_reply(user_input):
-    user_input = user_input.lower()
+    clean_input = user_input.lower().translate(str.maketrans("", "", string.punctuation)).strip()
+    words = clean_input.split()
 
-    # Case 1: User asks about a month
-    for month in holidays:
-        if month in user_input:
-            events = holidays[month]
+    # Check festivals first
+    for month, events in holidays.items():
+        for fest, date in events.items():
+            fest_words = fest.lower().split()
+            # Check if all words of festival are in the user input
+            if all(word in words for word in fest_words):
+                return f"The holiday for {fest.title()} is on {date}"
+
+    # Then check months
+    for month, events in holidays.items():
+        if month in words:
             reply = f"There are {len(events)} holidays in {month.capitalize()}:<br>"
             for fest, date in events.items():
                 reply += f"• {date} → {fest.title()}<br>"
             return reply.strip()
 
-    # Case 2: User asks about a specific festival
-    for month, events in holidays.items():
-        for fest, date in events.items():
-            if fest in user_input:
-                return f"The holiday for {fest.title()} is on {date}"
-
     return None
+
+
+
 
 # ---------------- Bot reply ---------------- #
 def get_bot_reply(user_input):
@@ -152,7 +157,7 @@ def get_bot_reply(user_input):
             if kw in clean_input:
                 return faq_answers[answer_key]
 
-    # Fuzzy match
+    # Fuzzy match fallback
     all_keywords = []
     keyword_to_answer = {}
     for ans_key, keywords in faq_keywords.items():
