@@ -1,18 +1,15 @@
 import difflib
 import string
+import re
 
 # ---------------- FAQs ---------------- #
 faq_answers = {
-    "exam date": "Your next exam is scheduled for last November 2025 📅. The detailed timetable will be shared soon.",
-    "leave application": "To apply for leave 📝, visit the office and fill out a form, or apply online via the portal.",
-    "hostel rules": "Hostel rules 🏫: return before 9:30 PM, daily attendance, no visitors inside rooms.",
-    "syllabus": "The syllabus 📚 is available on the college website or your department office.",
+    "exam date": "Your next exam is scheduled from 02 December 2025 to 12 December 2025 📅.",
+    "hostel rules": "Hostel rules 🏫: return before 9:30 PM, no visitors inside rooms.",
     "library": "Our library is open from 1:00 PM 📖. You can borrow 2 books for 14 days with your library card.",
     "principal": "Our Principal is Dr. Bhagwan Singh 👨‍🏫. Meet him during office hours with prior permission.",
-    "sports": "Sports 🏅: cricket, football, basketball, indoor games. Annual Sports Week happens in February.",
-    "canteen": "The canteen 🍴 is open from 8:30 AM to 6:00 PM with affordable meals and snacks.",
     "greeting": "Hello 👋, I am the chatbot of your college Government Polytechnic Patna-07. What can I help you with today?",
-    "hod cse": "The HOD of CSE branch is Prof. Neha Rani Ma'am 👩‍🏫.",
+    "hod cse": "The HOD of CSE branch is Prof. Neha Ma'am 👩‍🏫.",
     "hod electrical": "The HOD of ELECTRICAL branch is Prof. Rabindra sir 👨‍🏫.",
     "hod mechanical": "The HOD of MECHANICAL branch is Prof. Nikhil Patel 👨‍🏫.",
     "hod electronics": "The HOD of ELECTRONICS branch is Prof. Chandraprakash sir 👨‍🏫.",
@@ -82,82 +79,84 @@ holidays = {
     }
 }
 
-# ---------------- Keywords ---------------- #
+# ---------------- Keywords (for FAQ fallback) ---------------- #
 faq_keywords = {
     "exam date": ["exam", "exam date", "next exam", "when is exam", "exam timetable"],
     "leave application": ["leave", "leave application", "how to apply leave", "leave form"],
     "hostel rules": ["hostel", "rules of hostel", "hostel rules"],
-    "syllabus": ["syllabus", "subjects", "course syllabus"],
     "library": ["library", "books", "reading room"],
     "principal": ["principal", "head of college", "college principal"],
-    "sports": ["sports", "games", "playground", "athletics"],
-    "canteen": ["canteen", "food", "mess", "dining", "food in hostel"],
     "greeting": ["hello", "hi", "hii", "hey", "how are you"],
-    "hod cse": ["hod cse", "cse hod", "computer science hod", "head of cse", "cs hod", "computer science & engineering", "cse", "cse branch"],
-    "hod electrical": ["hod electrical", "electrical hod", "head of electrical", "electrical department hod", "ee hod", "electrical engineering", "electrical branch"],
-    "hod mechanical": ["hod mechanical", "mechanical hod", "mechanical department hod", "me hod", "mechanical engineering", "mechanical branch"],
-    "hod electronics": ["hod electronics", "electronics hod", "electronics department hod", "electronics engineering", "electronics branch"],
-    "hod civil": ["hod civil", "civil hod", "civil department hod", "civil engineering", "civil branch"],
-    "hod textile": ["hod textile", "textile hod", "textile department hod", "textile engineering", "textile branch"],
-    "hod printing": ["hod printing", "printing hod", "printing department hod", "printing engineering", "printing branch"],
-    "hod ceramics": ["hod ceramics", "ceramic hod", "ceramics engineering", "ceramics branch"],
-    "training and placement officers": ["tpo", "training and placement officer", "placement officers", "training officers"]
 }
 
-# ---------------- Bad words ---------------- #
-bad_words = ["fuck", "shit", "bitch", "damn", "ass", "idiot", "love you"]
+# Branch names list for HOD 
+BRANCHES = ["cse", "electrical", "mechanical", "electronics", "civil", "textile", "printing", "ceramics"]
+
+# ---------------- Utility helpers ---------------- #
+def clean_text(text):
+    return text.lower().translate(str.maketrans("", "", string.punctuation))
+
 
 # ---------------- Holiday handler ---------------- #
 def get_holiday_reply(user_input):
-    clean_input = user_input.lower().translate(str.maketrans("", "", string.punctuation)).strip()
-    words = clean_input.split()
+    clean = clean_text(user_input)
+    words = clean.split()
 
-    # Check festivals first
+    # festival exact match (multi-word)
     for month, events in holidays.items():
         for fest, date in events.items():
             fest_words = fest.lower().split()
-            # Check if all words of festival are in the user input
-            if all(word in words for word in fest_words):
+            if all(w in words for w in fest_words):
                 return f"The holiday for {fest.title()} is on {date}"
-
-    # Then check months
+    # month query
     for month, events in holidays.items():
         if month in words:
             reply = f"There are {len(events)} holidays in {month.capitalize()}:<br>"
             for fest, date in events.items():
                 reply += f"• {date} → {fest.title()}<br>"
             return reply.strip()
+    return None
 
+# ---------------- HOD handler ---------------- #
+def get_hod_reply(user_input):
+    clean = clean_text(user_input)
+    # Only handle HOD if user explicitly asked about HOD / 'who is' with branch or 'head of'
+    if ("hod" in clean) or ("head of" in clean) or re.search(r'\bwho is\b', clean):
+        for branch in BRANCHES:
+            if branch in clean:
+                key = f"hod {branch}"
+                # safe lookup
+                return faq_answers.get(key, f"HOD information for {branch.upper()} not available.")
     return None
 
 
 
-
-# ---------------- Bot reply ---------------- #
+# ---------------- Bot reply (master) ---------------- #
 def get_bot_reply(user_input):
-    clean_input = user_input.lower().translate(str.maketrans("", "", string.punctuation))
+    if not user_input or not user_input.strip():
+        return "⚠️ Please type a message."
 
-    # Check for bad words
-    for bad_word in bad_words:
-        if " " in bad_word:
-            if bad_word in clean_input:
-                return "⚠️ Please use polite language."
-        else:
-            if bad_word in clean_input.split():
-                return "⚠️ Please use polite language."
+    clean_input = clean_text(user_input)
 
-    # Check holidays
-    holiday_reply = get_holiday_reply(clean_input)
+    # Holidays
+    holiday_reply = get_holiday_reply(user_input)
     if holiday_reply:
         return holiday_reply
 
-    # Check FAQs
+    # HOD queries (higher priority than syllabus)
+    hod_reply = get_hod_reply(user_input)
+    if hod_reply:
+        return hod_reply
+
+  
+
+    #  FAQs by keywords
     for answer_key, keywords in faq_keywords.items():
         for kw in keywords:
             if kw in clean_input:
                 return faq_answers[answer_key]
 
-    # Fuzzy match fallback
+    # Fuzzy match fallback (try best keyword)
     all_keywords = []
     keyword_to_answer = {}
     for ans_key, keywords in faq_keywords.items():
@@ -171,4 +170,5 @@ def get_bot_reply(user_input):
         answer_key = keyword_to_answer[matched_keyword]
         return faq_answers[answer_key]
 
+    # Default fallback
     return "Sorry, I don’t have information on that. Please contact the office 📌."
